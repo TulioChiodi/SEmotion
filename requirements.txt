@@ -2,6 +2,11 @@
 -e .
 
 # external requirements
+python-git
+pyqtgraph
+PyOpenGL
+PyOpenGL_accelerate
+opensimplex
 click
 Sphinx
 coverage

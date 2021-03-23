@@ -1,4 +1,4 @@
-.PHONY: clean data lint requirements sync_data_to_s3 sync_data_from_s3
+.PHONY: clean data lint requirements download_dataset sync_data_to_s3 sync_data_from_s3
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -24,6 +24,26 @@ endif
 requirements: test_environment
 	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
+
+## Download Dataset
+DATASET_PATH = data/raw/dataset-pt_br
+
+$(DATASET_PATH):
+	mkdir $(DATASET_PATH) 
+	$(PYTHON_INTERPRETER) src/data/download_ds.py $(DATASET_PATH)
+
+download_dataset: $(DATASET_PATH)
+
+## Create CSV file
+CSV_DIR = data/processed/dataset-pt_br
+CSV_FILEPATH := $(CSV_DIR)/pt_database.csv
+
+$(CSV_DIR):
+	mkdir $(CSV_DIR) 
+$(CSV_FILEPATH): $(CSV_DIR)
+	$(PYTHON_INTERPRETER) src/data/create_csv.py $(CSV_DIR)
+
+create_csv: $(CSV_FILEPATH) download_dataset
 
 ## Make Dataset
 data: requirements
@@ -79,7 +99,6 @@ test_environment:
 #################################################################################
 # PROJECT RULES                                                                 #
 #################################################################################
-
 
 
 #################################################################################
