@@ -3,11 +3,6 @@ SEmotion
 
 Speech Emotion Recognition using YAMNet
 
-Create the conda environment with:
-
-```bash
-conda env create --file environment.yml
-```
 Project Organization
 ------------
 
