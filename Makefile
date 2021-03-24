@@ -1,4 +1,4 @@
-.PHONY: clean data lint requirements download_dataset sync_data_to_s3 sync_data_from_s3
+.PHONY: clean data lint requirements download_dataset create_csv train_model sync_data_to_s3 sync_data_from_s3
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -22,32 +22,56 @@ endif
 
 ## Install Python Dependencies
 requirements: test_environment
+	conda install -c anaconda -y pyaudio
+	conda install -y pip
 	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
+	pip install --upgrade tensorflow-hub
 
-## Download Dataset
+# Dataset Vars
 DATASET_PATH = data/raw/dataset-pt_br
+DATASET_FILEPATH := $(DATASET_PATH)/README.md
 
-$(DATASET_PATH):
+$(DATASET_PATH): requirements
 	mkdir $(DATASET_PATH) 
+$(DATASET_FILEPATH): | $(DATASET_PATH)
 	$(PYTHON_INTERPRETER) src/data/download_ds.py $(DATASET_PATH)
 
-download_dataset: $(DATASET_PATH)
+## Download Dataset
+download_dataset: $(DATASET_FILEPATH)
 
-## Create CSV file
+# CSV Vars
 CSV_DIR = data/processed/dataset-pt_br
 CSV_FILEPATH := $(CSV_DIR)/pt_database.csv
 
-$(CSV_DIR):
+$(CSV_DIR): download_dataset
 	mkdir $(CSV_DIR) 
 $(CSV_FILEPATH): $(CSV_DIR)
-	$(PYTHON_INTERPRETER) src/data/create_csv.py $(CSV_DIR)
+	$(PYTHON_INTERPRETER) src/data/create_csv.py $(CSV_DIR) $(DATASET_PATH)
 
-create_csv: $(CSV_FILEPATH) download_dataset
+## Create CSV file
+create_csv: $(CSV_FILEPATH) 
 
-## Make Dataset
-data: requirements
-	$(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed
+# Train Vars
+MODEL_DIR = models/model_00
+MODEL_FILEPATH := $(MODEL_DIR)/saved_model.pb 
+
+$(MODEL_DIR): create_csv download_dataset
+	mkdir $(MODEL_DIR)
+
+$(MODEL_FILEPATH): $(MODEL_DIR)
+	$(PYTHON_INTERPRETER) src/models/train_model.py $(CSV_FILEPATH) $(MODEL_DIR)
+
+## Train Model
+train_model: $(MODEL_FILEPATH) 
+
+## Train Model
+predict_model: train_model
+	$(PYTHON_INTERPRETER) src/models/predict_model.py $(MODEL_DIR)
+
+# ## Make Dataset
+# data: requirements
+# 	$(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed
 
 ## Delete all compiled Python files
 clean:
@@ -79,11 +103,11 @@ create_environment:
 ifeq (True,$(HAS_CONDA))
 		@echo ">>> Detected conda, creating conda environment."
 ifeq (3,$(findstring 3,$(PYTHON_INTERPRETER)))
-	conda create --name $(PROJECT_NAME) python=3
+	conda create --name $(PROJECT_NAME) python=3.8 -y
 else
 	conda create --name $(PROJECT_NAME) python=2.7
 endif
-		@echo ">>> New conda env created. Activate with:\nsource activate $(PROJECT_NAME)"
+		@echo ">>> New conda env created. To activate use:\nconda activate $(PROJECT_NAME)"
 else
 	$(PYTHON_INTERPRETER) -m pip install -q virtualenv virtualenvwrapper
 	@echo ">>> Installing virtualenvwrapper if not already installed.\nMake sure the following lines are in shell startup file\n\
