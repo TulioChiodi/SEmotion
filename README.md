@@ -1,7 +1,21 @@
 SEmotion
 ==============================
 
-Speech Emotion Recognition using YAMNet
+Speech Emotion Recognition using YAMNet embeddings.
+
+
+Installation:
+------------
+
+```bash
+conda env create -f environment.yml
+
+conda activate SEmotion
+
+pip install -e .
+
+pip install -r requirements.txt
+```
 
 Project Organization
 ------------
