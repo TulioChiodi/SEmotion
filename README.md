@@ -17,6 +17,11 @@ pip install -e .
 pip install -r requirements.txt
 ```
 
+
+Running the project:
+
+python src/models/train_model.py data/processed/dataset-pt_br/pt_database.csv models/model_00
+
 Project Organization
 ------------
 

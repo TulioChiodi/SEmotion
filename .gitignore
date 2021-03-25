@@ -1,5 +1,10 @@
-# Folders
+
+
+# Notebooks
 notebooks/
+
+# Models
+models/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -79,7 +84,9 @@ target/
 .ipynb_checkpoints/
 
 # exclude data from source control by default
-/data/
+data/raw/*
+!.gitkeep
+
 
 # Mac OS-specific storage files
 .DS_Store

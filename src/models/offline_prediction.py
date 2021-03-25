@@ -7,12 +7,12 @@ import numpy as np
 import os
 
 @click.command()
-@click.argument('model_path', type=click.Path())
 @click.argument('audio_filepath', type=click.Path())
-def main(model_path, audio_filepath):
+def main(audio_filepath):
     """  Run the predictions and send them to Hyperorganicos server
          via MQTT protocol
     """
+    model_path='models/model_00'
     LOG_FILEPATH = os.path.join(PROJECT_PATH, model_path, 'OfflinePredictiong.log')
     LITE_LOG_FILEPATH = os.path.join(PROJECT_PATH, model_path, 'Lite_OfflineEPredictiong.log')
 
@@ -49,8 +49,9 @@ def main(model_path, audio_filepath):
 
     saved_model_path = os.path.join(PROJECT_PATH, model_path)
     model = tf.saved_model.load(saved_model_path)
-
-    my_classes = ['Angry', 'Disgust', 'Fear', 'Happy', 'Neutral', 'Sad', 'Surprised']
+                # ['anger', 'fear', 'happyness', 'neutral', 'sadness', 'surprise', 'tense']
+    my_classes = ['Raiva', 'Medo', 'Felicidade', 'Neutro', 'Tristeza', 'Surpresa', 'Tensão']
+    
 
     sample = load_wav_16k_mono(audio_filepath)
     final_layer = model(sample)

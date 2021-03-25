@@ -65,7 +65,7 @@ def main(model_path):
 
     print('janela de análise é de: {0} segundos'.format(CHUNK/RATE))
     # input stream setup
-    # pyaudio.paInt16 : representa resolução em 16bit
+    # pyaudio.paInt16 : representa resolução em 16bit 
     
     p = pyaudio.PyAudio()
 
@@ -76,8 +76,8 @@ def main(model_path):
                         frames_per_buffer=CHUNK)
 
 
-    # labels = ['Irritação', 'Aversão', 'Medo', 'Alegria', 'Neutro', 'Tristeza', 'Surpresa']
-    my_classes = ['Angry', 'Disgust', 'Fear', 'Happy', 'Neutral', 'Sad', 'Surprised']
+    #   labels = ['anger', 'fear', 'happyness', 'neutral', 'sadness', 'surprise', 'tense']
+    my_classes = ['Raiva', 'Medo', 'Felicidade', 'Neutro', 'Tristeza', 'Surpresa', 'Tensão']
 
     # Connecting to Hyperorganicos MQTT broker 
     hyper.connect()

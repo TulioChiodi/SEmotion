@@ -1,4 +1,4 @@
-.PHONY: clean data lint requirements download_dataset create_csv train_model sync_data_to_s3 sync_data_from_s3
+.PHONY: clean data lint 'requirements' download_dataset create_csv train_model sync_data_to_s3 sync_data_from_s3
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -21,20 +21,20 @@ endif
 #################################################################################
 
 ## Install Python Dependencies
-requirements: test_environment
+'requirements': test_environment
 	conda install -c anaconda -y pyaudio
 	conda install -y pip
 	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
-	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
+	$(PYTHON_INTERPRETER) -m pip install -r 'requirements'.txt
 	pip install --upgrade tensorflow-hub
 
 # Dataset Vars
 DATASET_PATH = data/raw/dataset-pt_br
 DATASET_FILEPATH := $(DATASET_PATH)/README.md
 
-$(DATASET_PATH): requirements
+$(DATASET_PATH): 
 	mkdir $(DATASET_PATH) 
-$(DATASET_FILEPATH): | $(DATASET_PATH)
+$(DATASET_FILEPATH): | $(DATASET_PATH) 
 	$(PYTHON_INTERPRETER) src/data/download_ds.py $(DATASET_PATH)
 
 ## Download Dataset
@@ -44,9 +44,9 @@ download_dataset: $(DATASET_FILEPATH)
 CSV_DIR = data/processed/dataset-pt_br
 CSV_FILEPATH := $(CSV_DIR)/pt_database.csv
 
-$(CSV_DIR): download_dataset
+$(CSV_DIR): 
 	mkdir $(CSV_DIR) 
-$(CSV_FILEPATH): $(CSV_DIR)
+$(CSV_FILEPATH): download_dataset | $(CSV_DIR)
 	$(PYTHON_INTERPRETER) src/data/create_csv.py $(CSV_DIR) $(DATASET_PATH)
 
 ## Create CSV file
@@ -56,10 +56,10 @@ create_csv: $(CSV_FILEPATH)
 MODEL_DIR = models/model_00
 MODEL_FILEPATH := $(MODEL_DIR)/saved_model.pb 
 
-$(MODEL_DIR): create_csv download_dataset
+$(MODEL_DIR): 
 	mkdir $(MODEL_DIR)
 
-$(MODEL_FILEPATH): $(MODEL_DIR)
+$(MODEL_FILEPATH): create_csv download_dataset | $(MODEL_DIR)
 	$(PYTHON_INTERPRETER) src/models/train_model.py $(CSV_FILEPATH) $(MODEL_DIR)
 
 ## Train Model
@@ -70,7 +70,7 @@ predict_model: train_model
 	$(PYTHON_INTERPRETER) src/models/predict_model.py $(MODEL_DIR)
 
 # ## Make Dataset
-# data: requirements
+# data: 'requirements'
 # 	$(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed
 
 ## Delete all compiled Python files
