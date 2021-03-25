@@ -34,8 +34,9 @@ def main(csv_path, dataset_path):
             nm, ext = os.path.splitext(filename)
             if ext.lower().endswith('.wav'):
                 file_fullpath = os.path.join(subdir, filename)
-                label = subdir.split('/')[-1]
+                label = os.path.split(subdir)[-1]
                 data.append((file_fullpath, label))
+
 
     df = pd.DataFrame(data, columns=['file_fullpath', 'label'])
 
